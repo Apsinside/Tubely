@@ -8,6 +8,7 @@ import path from "path";
 
 export async function handlerUploadThumbnail(cfg: ApiConfig, req: BunRequest) {
   const { videoId } = req.params as { videoId?: string };
+  req.headers
   if (!videoId) {
     throw new BadRequestError("Invalid video ID");
   }
@@ -22,6 +23,12 @@ export async function handlerUploadThumbnail(cfg: ApiConfig, req: BunRequest) {
   if(!(file instanceof File)){
     throw new BadRequestError("Uploaded image is not a valid file");
   }
+
+  const type = file.type;
+  if(type !== "image/png" && type !== "image/jpeg"){
+    throw new BadRequestError("Uploaded image is not a valid file");
+  }
+
 
   const MAX_UPLOAD_SIZE = 10 << 20;
   if(file.size > MAX_UPLOAD_SIZE ){
