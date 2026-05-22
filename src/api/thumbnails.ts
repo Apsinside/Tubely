@@ -38,7 +38,7 @@ export async function handlerUploadThumbnail(cfg: ApiConfig, req: BunRequest) {
 
   const mediaType = file.type;
   const data = await file.arrayBuffer();
-  
+
   const video = getVideo(cfg.db, videoId);
   if (!video) {
     throw new NotFoundError("Couldn't find video");
@@ -51,6 +51,7 @@ export async function handlerUploadThumbnail(cfg: ApiConfig, req: BunRequest) {
   const fileExtension = getFileExtension(mediaType);
   const filename = randomBytes(32).toString("base64url");
   const filePath = path.join(cfg.assetsRoot, filename) + "." + fileExtension;
+  const bytesWritten = await Bun.write(filePath, data);
 
   console.log("Uploaded thumbnail for video", videoId, "stored at", filePath);
 
@@ -62,7 +63,7 @@ export async function handlerUploadThumbnail(cfg: ApiConfig, req: BunRequest) {
 }
 
 
-function getFileExtension(mediaType: string): string{
+export function getFileExtension(mediaType: string): string{
   switch(mediaType){
     case ("image/png"):
       return "png";
@@ -70,6 +71,8 @@ function getFileExtension(mediaType: string): string{
       return "json";
     case ("text/html"):
       return "html";
+    case ("video/mp4"):
+      return "mp4";
     default:
       return "";
   }
